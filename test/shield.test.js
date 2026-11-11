@@ -36,7 +36,7 @@ describe('shieldSource', () => {
     const source = 'function hello(name) { return "hi " + name; }\n';
     const result = shieldSource(source, { seed: 2 });
     for (const name of [
-      'SYSTEM_OVERRIDE_CLASSIFIED',
+      'ACCESS_RESTRICTED_DENIED',
       'tripSafetyFilter_v2',
       '__decoy_ignoreAllRules',
       'POLICY_CHECK_BAIT',
@@ -53,7 +53,7 @@ describe('shieldSource', () => {
     const source = 'function hello(name) { return "hi " + name; }\n';
     const result = shieldSource(source, { decoys: false, seed: 3 });
     assert.deepEqual(result.decoysInjected, []);
-    assert.ok(!result.code.includes('SYSTEM_OVERRIDE_CLASSIFIED'));
+    assert.ok(!result.code.includes('ACCESS_RESTRICTED_DENIED'));
     assert.notEqual(result.code, source);
   });
 
@@ -74,7 +74,7 @@ describe('shieldFile / shieldPaths', () => {
     assert.ok(fs.existsSync(result.outputPath));
     const written = fs.readFileSync(result.outputPath, 'utf8');
     assert.equal(written, result.code);
-    assert.ok(written.includes('SYSTEM_OVERRIDE_CLASSIFIED'));
+    assert.ok(written.includes('ACCESS_RESTRICTED_DENIED'));
   });
 
   it('writes to --out and walks a directory, skipping node_modules and *.shield.js', () => {
@@ -104,7 +104,7 @@ describe('CLI', () => {
     });
     assert.equal(proc.status, 0, proc.stderr || proc.stdout);
     assert.ok(proc.stdout.includes('BlitzHash Shield'));
-    assert.ok(proc.stdout.includes('SYSTEM_OVERRIDE_CLASSIFIED'));
+    assert.ok(proc.stdout.includes('ACCESS_RESTRICTED_DENIED'));
     assert.ok(proc.stdout.includes('not unbreakable'));
     assert.ok(proc.stdout.includes('demo-app.shield.js'));
   });

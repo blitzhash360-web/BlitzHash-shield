@@ -10,7 +10,7 @@
  */
 
 const IDENTIFIERS = Object.freeze([
-  'SYSTEM_OVERRIDE_CLASSIFIED',
+  'ACCESS_RESTRICTED_DENIED',
   'tripSafetyFilter_v2',
   '__decoy_ignoreAllRules',
   'POLICY_CHECK_BAIT',
@@ -25,7 +25,7 @@ const IDENTIFIERS = Object.freeze([
 ]);
 
 const STRINGS = Object.freeze([
-  'SYSTEM_OVERRIDE_CLASSIFIED',
+  'ACCESS_RESTRICTED_DENIED',
   'tripSafetyFilter_v2',
   '__decoy_ignoreAllRules',
   'POLICY_CHECK_FAILED_DECOY',

@@ -39,7 +39,7 @@ Useful options: `--no-decoys` (obfuscate only), `--dry-run` (print, don't write)
 | Step | What happens |
 |---|---|
 | Obfuscate | Wraps [javascript-obfuscator](https://github.com/javascript-obfuscator/javascript-obfuscator) with defaults that suit vibe-coded client bundles: compact output, control-flow flattening, string encoding, identifier renaming. `selfDefending` stays off so typical apps keep working. |
-| Inject decoys | Plants sanitized anti-LLM identifier and string bait (`SYSTEM_OVERRIDE_CLASSIFIED`, `tripSafetyFilter_v2`, `__decoy_ignoreAllRules`, and others) so some models refuse to unpack the file. These are original, clearly labeled decoys — not copied from any article. |
+| Inject decoys | Plants sanitized anti-LLM identifier and string bait (`ACCESS_RESTRICTED_DENIED`, `tripSafetyFilter_v2`, `__decoy_ignoreAllRules`, and others) so some models refuse to unpack the file. These are original, clearly labeled decoys — not copied from any article. |
 | Tell the truth | The CLI and this README spell out what that does and does not buy you. |
 
 Programmatic API:
