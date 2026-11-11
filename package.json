@@ -1,7 +1,7 @@
 {
   "name": "@blitzhash/shield",
   "version": "1.0.0",
-  "description": "Anti-reverse-engineering toolkit for vibe-coded apps: obfuscate shipped client JS and inject anti-LLM decoy strings. Raises the cost of copying — not unbreakable.",
+  "description": "BlitzHash Shield \u2014 anti-reverse-engineering toolkit for vibe-coded apps: obfuscate shipped client JS and inject anti-LLM decoy strings. Raises the cost of copying \u2014 not unbreakable.",
   "bin": {
     "shield": "./bin/shield.js",
     "blitzhash-shield": "./bin/shield.js"
@@ -39,10 +39,10 @@
   "homepage": "https://blitzhash.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blitzhash360-web/shield.git"
+    "url": "git+https://github.com/blitzhash360-web/BlitzHash-shield.git"
   },
   "bugs": {
-    "url": "https://github.com/blitzhash360-web/shield/issues"
+    "url": "https://github.com/blitzhash360-web/BlitzHash-shield/issues"
   },
   "publishConfig": {
     "access": "public"

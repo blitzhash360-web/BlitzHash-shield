@@ -1,14 +1,14 @@
-# Shield — anti-reverse-engineering toolkit for vibe-coded apps
+# BlitzHash Shield — anti-reverse-engineering toolkit for vibe-coded apps
 
 **Raise the cost of copying your shipped client JavaScript: one command obfuscates the bundle and plants anti-LLM decoy strings so casual skimming — and many AI unpack attempts — get harder. It is not unbreakable.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
 [![Node >=18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
-[![CI](https://github.com/blitzhash360-web/shield/actions/workflows/ci.yml/badge.svg)](https://github.com/blitzhash360-web/shield/actions/workflows/ci.yml)
+[![CI](https://github.com/blitzhash360-web/BlitzHash-shield/actions/workflows/ci.yml/badge.svg)](https://github.com/blitzhash360-web/BlitzHash-shield/actions/workflows/ci.yml)
 [![BlitzHash](https://img.shields.io/badge/Built%20by-BlitzHash-0a1628)](https://blitzhash.com)
 
 ![Shield demo: readable paywall JS in, obfuscated output with decoy identifiers out](docs/screenshot.png)
-<sub>Real output of `npx -y github:blitzhash360-web/shield demo` on the bundled vibe-coded fixture. The after snippet is a shortened preview; the written file is the full obfuscated bundle plus decoys.</sub>
+<sub>Real output of `npx -y github:blitzhash360-web/BlitzHash-shield demo` on the bundled vibe-coded fixture. The after snippet is a shortened preview; the written file is the full obfuscated bundle plus decoys.</sub>
 
 ## Quick start (3 steps)
 
@@ -16,19 +16,19 @@ You need [Node.js 18 or newer](https://nodejs.org). Nothing else.
 
 ```bash
 # 1. See it work on a sample client bundle (runs in a temp folder, touches nothing of yours)
-npx -y github:blitzhash360-web/shield demo
+npx -y github:blitzhash360-web/BlitzHash-shield demo
 
 # 2. Point it at your shipped client JS (a Vite/webpack/esbuild bundle, not your source tree)
-npx -y github:blitzhash360-web/shield dist/assets/index.js
+npx -y github:blitzhash360-web/BlitzHash-shield dist/assets/index.js
 
 # 3. Or write to a specific path, then ship the .shield.js file instead of the readable original
-npx -y github:blitzhash360-web/shield dist/assets/index.js --out dist/assets/index.shield.js
+npx -y github:blitzhash360-web/BlitzHash-shield dist/assets/index.js --out dist/assets/index.shield.js
 ```
 
 No account. No API key. It reads a local file and writes a sibling `*.shield.js` (or `--out`). Prefer running it on the production bundle you already ship, not on raw source with imports.
 
 ```bash
-npx -y github:blitzhash360-web/shield src/client --out dist/shielded
+npx -y github:blitzhash360-web/BlitzHash-shield src/client --out dist/shielded
 node bin/shield.js demo
 ```
 
@@ -51,7 +51,7 @@ const { code, decoysInjected } = shieldSource(jsString);
 const result = shieldFile('dist/app.js', { out: 'dist/app.shield.js' });
 ```
 
-Package name: `@blitzhash/shield`. The CLI bins are `shield` and `blitzhash-shield`. This repo is set up to publish to npm later; today the supported install is `npx -y github:blitzhash360-web/shield`.
+Package name: `@blitzhash/shield`. The CLI bins are `shield` and `blitzhash-shield`. This repo is set up to publish to npm later; today the supported install is `npx -y github:blitzhash360-web/BlitzHash-shield`.
 
 ## What obfuscation can and cannot protect
 
@@ -75,8 +75,8 @@ If a secret should stay secret, it belongs on the server. Shield only changes ho
 ## Develop / test
 
 ```bash
-git clone https://github.com/blitzhash360-web/shield.git
-cd shield
+git clone https://github.com/blitzhash360-web/BlitzHash-shield.git
+cd BlitzHash-shield
 npm install
 npm test
 npm run demo

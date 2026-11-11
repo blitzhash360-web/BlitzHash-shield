@@ -43,7 +43,7 @@ function printHelp(out = console.log) {
 Usage:
   npx @blitzhash/shield <file-or-dir>
   npx @blitzhash/shield demo
-  npx -y github:blitzhash360-web/shield demo
+  npx -y github:blitzhash360-web/BlitzHash-shield demo
 
 Options:
   --out, -o <path>    Write to this file (single input) or directory
