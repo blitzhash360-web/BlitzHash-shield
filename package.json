@@ -1,0 +1,53 @@
+{
+  "name": "@blitzhash/shield",
+  "version": "1.0.0",
+  "description": "Anti-reverse-engineering toolkit for vibe-coded apps: obfuscate shipped client JS and inject anti-LLM decoy strings. Raises the cost of copying — not unbreakable.",
+  "bin": {
+    "shield": "./bin/shield.js",
+    "blitzhash-shield": "./bin/shield.js"
+  },
+  "main": "./src/index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "demo": "node bin/shield.js demo"
+  },
+  "files": [
+    "bin",
+    "src",
+    "fixtures",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "keywords": [
+    "javascript-obfuscation",
+    "anti-reverse-engineering",
+    "vibe-coding",
+    "web-security",
+    "open-source",
+    "blitzhash",
+    "client-side-protection",
+    "decoy-strings",
+    "cli"
+  ],
+  "author": "BlitzHash (https://blitzhash.com)",
+  "license": "MIT",
+  "homepage": "https://blitzhash.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blitzhash360-web/shield.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blitzhash360-web/shield/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "javascript-obfuscator": "^4.2.2"
+  }
+}

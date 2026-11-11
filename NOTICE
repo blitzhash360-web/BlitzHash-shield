@@ -1,0 +1,15 @@
+BlitzHash Shield
+Copyright (c) 2026 BlitzHash
+
+This project is original BlitzHash code under the MIT License (see LICENSE).
+
+It depends on javascript-obfuscator
+(https://github.com/javascript-obfuscator/javascript-obfuscator), licensed
+under the BSD 2-Clause License. That library is not vendored in this
+repository; it is installed as a normal npm dependency. The BSD 2-Clause
+license text ships with the dependency in node_modules.
+
+The anti-LLM decoy technique is inspired by public research documented at
+https://nullpt.rs/fingerprinting-bioweapons (veritas / nullpt.rs, CC BY-NC-SA 4.0).
+This repository does not copy that article's text, canvases, or payload strings.
+We use our own sanitized decoy names.
