@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const decoys = require('./decoys');
 const { obfuscateSource, defaultOptions } = require('./obfuscate');
+const { inspectPath, stripSourceMaps, stripSourceMapComments, formatInspect } = require('./inspect');
 
 const SKIP_DIR_NAMES = new Set([
   'node_modules',
@@ -48,7 +49,7 @@ function shieldSource(source, options = {}) {
   const strings = options.strings || decoys.STRINGS;
   const { shebang, body } = splitShebang(source);
 
-  let prepared = body;
+  let prepared = stripSourceMapComments(body);
   if (useDecoys) {
     prepared = decoys.injectDeadCode(prepared, identifiers, strings);
   }
@@ -108,7 +109,7 @@ function isJsFile(filePath) {
 function shieldFile(inputPath, options = {}) {
   const source = fs.readFileSync(inputPath, 'utf8');
   const result = shieldSource(source, { ...options, sourceFileName: inputPath });
-  const outputPath = options.out || defaultOutputPath(inputPath);
+  const outputPath = options.out || (options.inPlace ? inputPath : defaultOutputPath(inputPath));
   if (!options.dryRun) {
     fs.mkdirSync(path.dirname(path.resolve(outputPath)), { recursive: true });
     fs.writeFileSync(outputPath, result.code, 'utf8');
@@ -182,6 +183,10 @@ module.exports = {
   collectFiles,
   defaultOutputPath,
   fixturePath,
+  inspectPath,
+  stripSourceMaps,
+  stripSourceMapComments,
+  formatInspect,
   IDENTIFIERS: decoys.IDENTIFIERS,
   STRINGS: decoys.STRINGS,
   defaultOptions,

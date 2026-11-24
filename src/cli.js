@@ -3,7 +3,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { shieldPaths, fixturePath } = require('./index');
+const { shieldPaths, fixturePath, inspectPath, stripSourceMaps, formatInspect } = require('./index');
 
 const pkg = require('../package.json');
 
@@ -41,27 +41,38 @@ function printHelp(out = console.log) {
   out(`BlitzHash Shield — raise the cost of reverse-engineering your client JS
 
 Usage:
-  npx @blitzhash/shield <file-or-dir>
-  npx @blitzhash/shield demo
+  npx -y github:blitzhash360-web/BlitzHash-shield <file-or-dir>
+  npx -y github:blitzhash360-web/BlitzHash-shield inspect <file-or-dir>
+  npx -y github:blitzhash360-web/BlitzHash-shield strip-maps <file-or-dir>
   npx -y github:blitzhash360-web/BlitzHash-shield demo
+
+Commands:
+  inspect             Read-only report of source maps, secret-shaped strings and
+                      other things a human can still see in a ship folder
+  strip-maps          Delete .map files and strip sourceMappingURL comments
+  demo                Obfuscate the bundled fixture (writes to a temp folder)
+  <file-or-dir>       Obfuscate JS (default command)
 
 Options:
   --out, -o <path>    Write to this file (single input) or directory
+  --in-place          Overwrite the input files (for a dist folder after a build)
   --no-decoys         Obfuscate only; skip anti-LLM decoy strings
-  --dry-run           Print output to stdout and do not write files
+  --dry-run           Print or report, and do not write files
+  --fail              inspect: exit 1 if any high or critical finding
   --json              Machine-readable report
   --no-color          Disable ANSI colors
-  --demo, demo        Run on the bundled vibe-coded fixture (writes to a temp folder)
+  --demo, demo        Run the obfuscation demo
   --version, -v       Print version
   --help, -h          Show help
 
 Exit codes:
   0  Success
-  1  Runtime error
+  1  Runtime error, or inspect --fail with high/critical findings
   2  Usage / argument error
 
-Honest limits: this makes client JS harder to skim and harder for an AI to
-unpack. It is not unbreakable. Secrets and API keys still belong on the server.
+Honest limits: obfuscation makes client JS harder to skim and harder for an
+AI to unpack. It is not unbreakable. A determined human can still pretty-print
+the bundle and read every network request. Secrets still belong on the server.
 
 Built by BlitzHash · https://blitzhash.com
 `);
@@ -70,6 +81,7 @@ Built by BlitzHash · https://blitzhash.com
 function parseArgs(argv) {
   const opts = {
     input: null,
+    command: 'obfuscate',
     out: null,
     decoys: true,
     dryRun: false,
@@ -77,6 +89,8 @@ function parseArgs(argv) {
     noColor: false,
     forceColor: false,
     demo: false,
+    inPlace: false,
+    fail: false,
     help: false,
     version: false,
     bad: false,
@@ -99,9 +113,13 @@ function parseArgs(argv) {
         opts.unknown = `${a} requires a path`;
       }
     } else if (a.startsWith('--out=')) opts.out = a.slice(6);
+    else if (a === '--in-place') opts.inPlace = true;
+    else if (a === '--fail') opts.fail = true;
     else if (a.startsWith('-')) {
       opts.bad = true;
       opts.unknown = `Unknown argument: ${a}`;
+    } else if ((a === 'inspect' || a === 'strip-maps' || a === 'obfuscate') && opts.command === 'obfuscate' && !opts.input) {
+      opts.command = a;
     } else if (!opts.input) opts.input = a;
     else {
       opts.bad = true;
@@ -223,10 +241,48 @@ async function main(argv, io = {}) {
     stdout: io.stdout || process.stdout,
   });
 
+  if (opts.command === 'inspect') {
+    if (!opts.input) {
+      err('inspect needs a file or directory');
+      printHelp(err);
+      return 2;
+    }
+    const report = inspectPath(opts.input);
+    if (opts.json) {
+      log(JSON.stringify({ ok: report.ok, target: report.target, filesScanned: report.filesScanned, findings: report.findings, residual: report.residual }, null, 2));
+    } else {
+      log(formatInspect(report, { color }));
+    }
+    const blocking = report.findings.filter((f) => f.severity === 'critical' || f.severity === 'high');
+    if (opts.fail && blocking.length) return 1;
+    return 0;
+  }
+
+  if (opts.command === 'strip-maps') {
+    if (!opts.input) {
+      err('strip-maps needs a file or directory');
+      printHelp(err);
+      return 2;
+    }
+    const result = stripSourceMaps(opts.input, { dryRun: opts.dryRun });
+    if (opts.json) {
+      log(JSON.stringify({ ok: true, dryRun: Boolean(opts.dryRun), ...result }, null, 2));
+    } else {
+      log(`BlitzHash Shield strip-maps${opts.dryRun ? ' (dry run)' : ''}`);
+      log(`deleted maps     ${result.deletedMaps.length}`);
+      log(`stripped comments ${result.strippedComments.length}`);
+      for (const f of result.deletedMaps) log(`  map  ${f}`);
+      for (const f of result.strippedComments) log(`  js   ${f}`);
+      log('Built by BlitzHash · https://blitzhash.com');
+    }
+    return 0;
+  }
+
   const runOptions = {
     decoys: opts.decoys,
     out: opts.out,
     dryRun: opts.dryRun && !opts.demo,
+    inPlace: opts.inPlace,
   };
 
   const results = opts.demo ? runDemo(runOptions) : shieldPaths(opts.input, runOptions);

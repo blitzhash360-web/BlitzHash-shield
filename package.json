@@ -1,7 +1,7 @@
 {
   "name": "@blitzhash/shield",
-  "version": "1.0.0",
-  "description": "BlitzHash Shield \u2014 anti-reverse-engineering toolkit for vibe-coded apps: obfuscate shipped client JS and inject anti-LLM decoy strings. Raises the cost of copying \u2014 not unbreakable.",
+  "version": "2.0.0",
+  "description": "BlitzHash Shield \u2014 anti-reverse-engineering toolkit for vibe-coded apps: inspect what a human can still see, strip source maps, and obfuscate shipped client JS. Raises the cost of copying \u2014 not unbreakable.",
   "bin": {
     "shield": "./bin/shield.js",
     "blitzhash-shield": "./bin/shield.js"
@@ -18,6 +18,7 @@
   "files": [
     "bin",
     "src",
+    "plugins",
     "fixtures",
     "LICENSE",
     "NOTICE",
@@ -49,5 +50,9 @@
   },
   "dependencies": {
     "javascript-obfuscator": "^4.2.2"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./vite": "./plugins/vite.js"
   }
 }

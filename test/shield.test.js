@@ -13,6 +13,8 @@ const {
   shieldPaths,
   fixturePath,
   IDENTIFIERS,
+  inspectPath,
+  stripSourceMaps,
 } = require('../src');
 const { main } = require('../src/cli');
 
@@ -134,6 +136,78 @@ describe('CLI', () => {
   it('prints the version', () => {
     const proc = spawnSync(process.execPath, [bin, '--version'], { encoding: 'utf8' });
     assert.equal(proc.status, 0);
-    assert.equal(proc.stdout.trim(), '1.0.0');
+    assert.equal(proc.stdout.trim(), '2.0.0');
+  });
+});
+
+
+describe('inspect and strip-maps', () => {
+  const leaky = path.join(__dirname, '..', 'fixtures', 'leaky-dist');
+
+  it('flags source maps, sourceMappingURL and debugger in the bundled fixture', () => {
+    const report = inspectPath(leaky);
+    const ids = report.findings.map((f) => f.id);
+    assert.ok(ids.includes('source_map_file'), ids);
+    assert.ok(ids.includes('source_mapping_url'), ids);
+    assert.ok(ids.includes('debugger'), ids);
+    assert.ok(report.residual.length >= 3);
+    for (const f of report.findings) assert.equal(typeof f.advice, 'string');
+  });
+
+  it('flags a secret-shaped string in a temp file and never prints the value', () => {
+    const dir = tmpDir();
+    const file = path.join(dir, 'bundle.js');
+    // Built at test time so no secret-shaped token is committed to the repo.
+    const token = 'sk_live_' + 'A'.repeat(24);
+    fs.writeFileSync(file, 'const k = "' + token + '";\n');
+    const report = inspectPath(dir);
+    const secrets = report.findings.filter((f) => f.id.startsWith('secret_'));
+    assert.ok(secrets.length >= 1, report.findings.map((f) => f.id));
+    const dumped = JSON.stringify(report.findings);
+    assert.ok(!dumped.includes(token), dumped);
+    for (const f of secrets) {
+      assert.ok(!f.title.includes('sk_live_'));
+      assert.ok(!f.detail.includes(token));
+      assert.ok(!f.advice.includes(token));
+    }
+  });
+
+  it('CLI inspect --json lists findings and --fail exits 1', () => {
+    const proc = spawnSync(process.execPath, [bin, 'inspect', leaky, '--json', '--no-color'], { encoding: 'utf8' });
+    assert.equal(proc.status, 0, proc.stderr || proc.stdout);
+    const report = JSON.parse(proc.stdout);
+    assert.ok(report.findings.length >= 3);
+    const fail = spawnSync(process.execPath, [bin, 'inspect', leaky, '--fail', '--no-color'], { encoding: 'utf8' });
+    assert.equal(fail.status, 1, fail.stderr || fail.stdout);
+    assert.ok(fail.stdout.includes('Source map') || fail.stdout.includes('sourceMappingURL') || fail.stdout.includes('secret'));
+    assert.ok(fail.stdout.includes('not unbreakable') || fail.stdout.includes('determined human'));
+  });
+
+  it('strip-maps removes the map file and the comment (copy first)', () => {
+    const dir = tmpDir();
+    const js = path.join(dir, 'app.js');
+    const map = path.join(dir, 'app.js.map');
+    fs.writeFileSync(js, 'function hi() { return 1; }\n//# sourceMappingURL=app.js.map\n');
+    fs.writeFileSync(map, '{"version":3,"file":"app.js","sources":["app.js"],"mappings":""}\n');
+    const result = stripSourceMaps(dir);
+    assert.equal(result.deletedMaps.length, 1);
+    assert.equal(result.strippedComments.length, 1);
+    assert.ok(!fs.existsSync(map));
+    const after = fs.readFileSync(js, 'utf8');
+    assert.ok(!after.includes('sourceMappingURL'));
+  });
+
+  it('obfuscation strips sourceMappingURL and --in-place overwrites the file', () => {
+    const dir = tmpDir();
+    const input = path.join(dir, 'app.js');
+    const original = '(function () { function add(a, b) { return a + b; } return add(1, 2); })();\n//# sourceMappingURL=app.js.map\n';
+    fs.writeFileSync(input, original);
+    const { shieldFile } = require('../src');
+    const result = shieldFile(input, { seed: 9, inPlace: true, decoys: false });
+    assert.equal(result.outputPath, input);
+    const written = fs.readFileSync(input, 'utf8');
+    assert.ok(!written.includes('sourceMappingURL'));
+    assert.ok(!written.includes('function add'));
+    assert.notEqual(written, original);
   });
 });
